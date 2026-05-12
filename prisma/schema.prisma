@@ -1,0 +1,65 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String      @id @default(uuid()) @db.Uuid
+  email       String      @unique @db.VarChar(255)
+  name        String?     @db.VarChar(255)
+  avatar_url  String?
+  provider    String?     @db.VarChar(50)
+  provider_id String?     @db.VarChar(255)
+  created_at  DateTime    @default(now())
+
+  workspaces  Workspace[]
+
+  @@map("users")
+}
+
+model Workspace {
+  id          String      @id @default(uuid()) @db.Uuid
+  user_id     String      @db.Uuid
+  name        String?     @db.VarChar(255)
+  created_at  DateTime    @default(now())
+
+  user        User        @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  api_keys    ApiKey[]
+  short_urls  ShortUrl[]
+
+  @@map("workspaces")
+}
+
+model ApiKey {
+  id            String      @id @default(uuid()) @db.Uuid
+  workspace_id  String      @db.Uuid
+  key_hash      String      @unique @db.VarChar(255)
+  label         String?     @db.VarChar(100)
+  last_used_at  DateTime?
+  created_at    DateTime    @default(now())
+
+  workspace     Workspace   @relation(fields: [workspace_id], references: [id], onDelete: Cascade)
+
+  @@map("api_keys")
+}
+
+model ShortUrl {
+  id            String      @id @default(uuid()) @db.Uuid
+  workspace_id  String      @db.Uuid
+  slug          String      @unique @db.VarChar(50)
+  original_url  String
+  is_active     Boolean     @default(true)
+  expires_at    DateTime?
+  created_at    DateTime    @default(now())
+
+  workspace     Workspace   @relation(fields: [workspace_id], references: [id], onDelete: Cascade)
+
+  @@index([slug], map: "idx_short_urls_slug")
+
+  @@map("short_urls")
+}

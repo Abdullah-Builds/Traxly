@@ -1,22 +1,66 @@
 import passport from "passport";
+
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 
 import prisma from "./prisma.js";
-import { findOrCreateGoogleUser } from "../services/user.service.js";
 
 passport.use(
   new GoogleStrategy(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
+
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: process.env.GOOGLE_CALLBACK_URL,
+
+      callbackURL:
+        "http://localhost:3000/auth/google/callback",
     },
 
-    async (accessToken, refreshToken, profile, done) => {
+    async (
+      accessToken,
+      refreshToken,
+      profile,
+      done
+    ) => {
       try {
-        const user = await findOrCreateGoogleUser(profile);
+        let user = await prisma.user.findUnique({
+          where: {
+            email: profile.emails[0].value,
+          },
+        });
 
-        return done(null, user);
+        /* ---------------------------------- */
+        /* CREATE USER IF NOT EXISTS */
+        /* ---------------------------------- */
+
+        if (!user) {
+          user = await prisma.user.create({
+            data: {
+              email: profile.emails[0].value,
+
+              name: profile.displayName,
+
+              avatar_url: profile.photos[0].value,
+
+              provider: "google",
+
+              provider_id: profile.id,
+            },
+          });
+
+          /* ---------------------------------- */
+          /* CREATE DEFAULT WORKSPACE */
+          /* ---------------------------------- */
+
+          await prisma.workspace.create({
+            data: {
+              user_id: user.id,
+
+              name: `${user.name}'s Workspace`,
+            },
+          });
+        }
+
+        return done(null, user.id);
       } catch (error) {
         return done(error, null);
       }
@@ -24,9 +68,17 @@ passport.use(
   )
 );
 
-passport.serializeUser((user, done) => {
-  done(null, user.id);
+/* ---------------------------------- */
+/* SERIALIZE */
+/* ---------------------------------- */
+
+passport.serializeUser((userId, done) => {
+  done(null, userId);
 });
+
+/* ---------------------------------- */
+/* DESERIALIZE */
+/* ---------------------------------- */
 
 passport.deserializeUser(async (id, done) => {
   try {
@@ -34,12 +86,21 @@ passport.deserializeUser(async (id, done) => {
       where: {
         id,
       },
+
+      include: {
+        workspaces: true,
+      },
     });
 
-    done(null, user);
+    if (!user) {
+      return done(null, false);
+    }
+
+    done(null, {
+      ...user,
+      workspace_id: user.workspaces[0]?.id,
+    });
   } catch (error) {
     done(error, null);
   }
 });
-
-export default passport;

@@ -2,7 +2,7 @@ import express from "express";
 import session from "express-session";
 import passport from "passport";
 import dotenv from "dotenv";
-
+import cors from 'cors';
 
 import "./config/passport.js";
 import authRoutes from "./routes/auth.routes.js";
@@ -12,12 +12,19 @@ import { RedisStore } from "connect-redis";
 import redisClient from "./config/redis.js";
 
 import urlRoutes from "./routes/url.routes.js";
+import linkRoutes from "./routes/link.routes.js";
 
 dotenv.config();
 
 const app = express();
 
 app.use(express.json());
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+  })
+);
 
 // Redis Cloud session store
 const redisStore = new RedisStore({
@@ -41,6 +48,9 @@ app.use(
 
 app.use(passport.initialize());
 app.use(passport.session());
+
+
+app.use("/api", linkRoutes);
 app.use("/auth", authRoutes);
 app.use("/", urlRoutes);
 

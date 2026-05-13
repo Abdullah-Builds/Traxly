@@ -7,7 +7,7 @@ import prisma from "./config/prisma.js";
 const PORT = process.env.PORT || 3000;
 
 // Start both database connections in parallel
-async function StartDB() {
+(async function StartDB() {
   try {
     await Promise.all([
       connectMongo(),
@@ -23,9 +23,8 @@ async function StartDB() {
     console.error("Startup failed:", err);
     process.exit(1);
   }
-}
+})();
 
-StartDB();
 
 // Graceful shutdown
 process.on("SIGINT", async () => {

@@ -14,6 +14,7 @@ import redisClient from "./config/redis.js";
 import urlRoutes from "./routes/url.routes.js";
 import linkRoutes from "./routes/link.routes.js";
 
+
 dotenv.config();
 
 const app = express();
@@ -48,7 +49,6 @@ app.use(
 
 app.use(passport.initialize());
 app.use(passport.session());
-
 
 app.use("/api", linkRoutes);
 app.use("/auth", authRoutes);

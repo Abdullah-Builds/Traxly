@@ -142,21 +142,50 @@ export const redirectShortUrl = async (req, res) => {
                         count: 1,
                     },
                 ],
-
+                location: [
+                    {
+                        loc: clickData.loc
+                    }
+                ],
+                network: [
+                    {
+                        ip: clickData.ip,
+                        carrier: clickData.carrier,
+                        vpn: clickData.is_vpn,
+                    }
+                ],
+                top_city: [
+                    {
+                    city: clickData.city
+                    }
+                ],
                 top_countries: [
                     {
                         country: clickData.country,
                         count: 1,
                     },
                 ],
-
+                browser : [
+                    {
+                        browser : clickData.browser
+                    }
+                ],
+                OS : [
+                    {
+                        os : clickData.os
+                    }
+                ],
                 top_devices: [
                     {
                         device: clickData.device,
                         count: 1,
                     },
                 ],
-
+                source :[
+                    {
+                        source : clickData.source
+                    }
+                ],
                 top_referrers: [
                     {
                         source: clickData.source,

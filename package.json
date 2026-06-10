@@ -24,7 +24,8 @@
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "prisma": "^6.19.3",
-    "redis": "^5.12.1"
+    "redis": "^5.12.1",
+    "ua-parser-js": "^2.0.10"
   },
   "devDependencies": {
     "dotenv": "^17.4.2"

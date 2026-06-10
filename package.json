@@ -18,6 +18,7 @@
     "cors": "^2.8.6",
     "express": "^5.2.1",
     "express-session": "^1.19.0",
+    "geoip-lite": "^1.4.10",
     "mongoose": "^9.6.2",
     "nodemon": "^3.1.14",
     "passport": "^0.7.0",
